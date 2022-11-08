@@ -96,6 +96,7 @@ export const SpanVehiclePrice = styled.span`
 `;
 
 export const ButtonCreditCard = styled.button<IButtonCreditCard>`
+  white-space: nowrap;
   width: 100%;
   height: 40px;
   background: ${({ active }) =>
@@ -113,6 +114,7 @@ export const ButtonCreditCard = styled.button<IButtonCreditCard>`
 `;
 
 export const ButtonTicket = styled.button<IButtonTicket>`
+  white-space: nowrap;
   width: 100%;
   height: 40px;
   background: ${({ active }) => (active === 'ticket' ? '#F4E426' : '#cccccc')}

@@ -1,6 +1,7 @@
 import { memo } from 'react';
 
 import { Container } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 
 import LogoStarWars from 'assets/space-motors-logo.png';
 
@@ -11,7 +12,9 @@ const Header: React.FC = () => {
     <header>
       <HeaderContainer>
         <Container>
-          <img className="img-fluid" src={LogoStarWars} alt="LogoStarWars" />
+          <Link to="/">
+            <img className="img-fluid" src={LogoStarWars} alt="LogoStarWars" />
+          </Link>
         </Container>
       </HeaderContainer>
     </header>

@@ -1,120 +1,90 @@
-import {
-  Dispatch,
-  FormEvent,
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
-
-import { useTranslation } from 'react-i18next';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import StarWarsApi from 'services/StarWarsClient';
 
 import { VehicleType } from 'types/VehicleType';
 
-import useTitle from './useTitle';
-
-interface IQueryParams {
-  name?: string;
-  model?: string;
-  page?: number;
-  search?: string;
-}
-
 type VehiclesType = () => {
-  vehicles: VehicleType[] | undefined;
+  vehicles: VehicleType[];
+  vehicle: VehicleType | null;
   loading: boolean;
   error: string | null;
   totalPages: number;
   currentPage: number;
-  fetchStarWarsApi: (params?: IQueryParams) => Promise<void>;
-  setValue: Dispatch<SetStateAction<string | undefined>>;
-  value: string | undefined;
-  handleSubmit: (e: FormEvent<HTMLFormElement>) => void;
+  fetchVehicles: (page?: number, search?: string) => Promise<void>;
+  fetchVehicle: (id: string) => Promise<void>;
+  search: string;
 };
 
 const useVehicles: VehiclesType = () => {
-  const { t, i18n } = useTranslation();
-  const setTitle = useTitle();
-  const [vehicles, setVehicles] = useState<VehicleType[]>();
+  const [vehicles, setVehicles] = useState<VehicleType[]>([]);
+  const [vehicle, setVehicle] = useState<VehicleType | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [value, setValue] = useState<string>();
   const [totalPages, setTotalPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [search, setSearch] = useState('');
 
-  const fetchStarWarsApi = useCallback(
-    async (params?: IQueryParams) => {
-      try {
-        setLoading(true);
-        let queryParams = { ...params };
-        if (!params?.search?.length && search.length > 0) {
-          queryParams = {
-            ...queryParams,
-            search,
-          };
-        }
-        if (!params?.page && currentPage) {
-          queryParams = {
-            ...queryParams,
-            page: currentPage,
-          };
-        }
-        const {
-          data: { results, count },
-        } = await StarWarsApi.get('/vehicles', { params: queryParams });
-        setVehicles(results);
-        setTotalPages(count / 10);
-        setCurrentPage(queryParams?.page ?? 1);
-        setSearch(queryParams?.search ?? '');
-      } catch {
-        setError('Vehicles not found');
-      } finally {
-        setLoading(false);
-      }
-    },
-    [currentPage, search],
-  );
-  const handleSubmit = useCallback(
-    (e: FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-      if (value?.length) {
-        fetchStarWarsApi({ search: value });
-      }
-    },
-    [fetchStarWarsApi, value],
-  );
+  const fetchVehicles = useCallback(async (page = 1, _search = '') => {
+    try {
+      setLoading(true);
+      const params = { page, search: _search };
+
+      const {
+        data: { results, count },
+      } = await StarWarsApi.get('/vehicles', { params });
+      setVehicles(results);
+      setTotalPages(Math.ceil(count / 10));
+      setCurrentPage(page);
+      setSearch(_search);
+    } catch {
+      setError('Vehicles not found');
+      setVehicles([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const fetchVehicle = useCallback(async (id: string) => {
+    try {
+      setLoading(true);
+      const { data } = await StarWarsApi.get(`/vehicles/${id}`);
+      setVehicle(data);
+    } catch {
+      setError('Vehicle not found');
+      setVehicle(null);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    setTitle(t(''));
-    fetchStarWarsApi();
+    fetchVehicles();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [i18n.resolvedLanguage]);
+  }, []);
 
   return useMemo(
     () => ({
       vehicles,
+      vehicle,
       loading,
       error,
       totalPages,
       currentPage,
-      fetchStarWarsApi,
-      setValue,
-      value,
-      handleSubmit,
+      fetchVehicles,
+      fetchVehicle,
+      search,
     }),
     [
-      currentPage,
-      error,
-      fetchStarWarsApi,
-      handleSubmit,
-      loading,
-      totalPages,
-      value,
       vehicles,
+      loading,
+      error,
+      totalPages,
+      currentPage,
+      fetchVehicles,
+      fetchVehicle,
+      search,
+      vehicle,
     ],
   );
 };

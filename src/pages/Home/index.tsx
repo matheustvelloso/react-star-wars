@@ -1,30 +1,37 @@
-import React, { memo } from 'react';
+import React, { memo, useCallback, useEffect, useState } from 'react';
 
 import { Button, Col, Container, Form, Row } from 'react-bootstrap';
+import { AiOutlineReload } from 'react-icons/ai';
+import { ImArrowLeft2, ImArrowRight2 } from 'react-icons/im';
+import { MdCleaningServices } from 'react-icons/md';
 
 import Banner from 'components/Banner';
 import Footer from 'components/Footer';
 import Header from 'components/Header';
 import Loader from 'components/Loader';
-import Paginate from 'components/Paginate';
 import VehicleCard from 'components/VehicleCard';
 
+import useTitle from 'hooks/useTitle';
 import useVehicles from 'hooks/useVehicles';
 
-import { FormGroup } from './styles';
+import { FormGroup, Pagination, ReloadButton } from './styles';
 
 const Home: React.FC = () => {
-  const {
-    vehicles,
-    loading,
-    error,
-    totalPages,
-    currentPage,
-    fetchStarWarsApi,
-    setValue,
-    value,
-    handleSubmit,
-  } = useVehicles();
+  const [searchText, setSearchText] = useState('');
+  const setTitle = useTitle();
+
+  const { vehicles, loading, error, totalPages, currentPage, fetchVehicles } =
+    useVehicles();
+
+  const handleClearSearch = useCallback(() => {
+    fetchVehicles();
+    setSearchText('');
+  }, [fetchVehicles]);
+
+  useEffect(() => {
+    setTitle('');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <>
@@ -32,16 +39,34 @@ const Home: React.FC = () => {
       <Banner>
         {!loading && (
           <Container>
-            <FormGroup onSubmit={handleSubmit}>
+            <FormGroup className="d-flex flex-column flex-md-row py-2">
               <Form.Control
-                type="text"
+                type="text my-3"
                 placeholder="Digite o nome ou o modelo do veículo"
-                value={value}
-                onChange={(e) => setValue(e.target.value)}
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
               />
-              <Button variant="primary" disabled={!value?.length} type="submit">
-                Buscar
-              </Button>
+              <div className="d-flex justify-content-center w-md-100">
+                <Button
+                  className="my-3"
+                  variant="primary"
+                  disabled={!searchText.length}
+                  type="button"
+                  onClick={() => fetchVehicles(1, searchText)}
+                >
+                  Buscar
+                </Button>
+                {searchText?.length > 0 && (
+                  <Button
+                    className="my-3"
+                    variant="primary"
+                    onClick={handleClearSearch}
+                    type="submit"
+                  >
+                    <MdCleaningServices />
+                  </Button>
+                )}
+              </div>
             </FormGroup>
           </Container>
         )}
@@ -52,6 +77,14 @@ const Home: React.FC = () => {
         <main>
           <Container>
             <Row className="row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 justify-content-center mt-5 pt-5">
+              {vehicles?.length === 0 && (
+                <div className="text-white d-flex flex-column align-items-center my-5 py-5">
+                  <h2>Vehicle Not Found</h2>
+                  <ReloadButton type="button" onClick={handleClearSearch}>
+                    <AiOutlineReload />
+                  </ReloadButton>
+                </div>
+              )}
               {Array.isArray(vehicles) &&
                 vehicles.map((vehicle) => (
                   <Col className="d-flex" key={vehicle.name}>
@@ -60,13 +93,17 @@ const Home: React.FC = () => {
                 ))}
             </Row>
           </Container>
-          <Paginate
-            onPageChange={({ selected }) => {
-              fetchStarWarsApi({ page: selected + 1 });
-            }}
-            pageCount={totalPages}
-            forcePage={currentPage - 1}
-          />
+          {totalPages > 1 && (
+            <Pagination
+              onPageChange={({ selected }) => {
+                fetchVehicles(selected + 1);
+              }}
+              pageCount={totalPages}
+              forcePage={currentPage - 1}
+              nextLabel={<ImArrowRight2 />}
+              previousLabel={<ImArrowLeft2 />}
+            />
+          )}
         </main>
       )}
 

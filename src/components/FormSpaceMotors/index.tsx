@@ -2,6 +2,7 @@
 
 import { memo, useCallback, useEffect, useState } from 'react';
 
+import { isExists } from 'date-fns';
 import { Col, Row } from 'react-bootstrap';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
@@ -28,7 +29,7 @@ import {
 
 interface IFormSpaceMotors {
   id?: string;
-  _vehicle?: VehicleType;
+  vehicle?: VehicleType;
 }
 
 type FormType = {
@@ -49,9 +50,18 @@ type FormType = {
   cvv: string;
 };
 
-const FormSpaceMotors: React.FC<IFormSpaceMotors> = ({ id, _vehicle }) => {
+const FormSpaceMotors: React.FC<IFormSpaceMotors> = ({ id, vehicle }) => {
   const [paymentType, setPaymentType] = useState('creditCard');
   const [lastCep, setLastCep] = useState('');
+  const [currentCep, setCurrentCep] = useState('');
+  const [currentCpf, setCurrentCpf] = useState('');
+  const [currentTel, setCurrentTel] = useState('');
+  const [currentCardNumber, setCurrentCardNumber] = useState('');
+  const [currentValidateDate, setCurrentValidateDate] = useState('');
+  const [currentCvv, setCurrentCvv] = useState('');
+  const [error, setError] = useState('');
+  const [dateValid, setDateValid] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -75,27 +85,61 @@ const FormSpaceMotors: React.FC<IFormSpaceMotors> = ({ id, _vehicle }) => {
   }, [id, navigate, paymentType]);
 
   const cepValue = watch('cep');
+  const cpfValue = watch('cpf');
+  const telValue = watch('tel');
+  const cardNumberValue = watch('cardNumber');
+  const validateDateValue = watch('validateDate');
+  const cvvValue = watch('cvv');
 
   const fetchAddress = useCallback(
     async (cep: string) => {
-      const { data } = await ViaCepApi.get(`/${cep}/json/`);
-      setValue('logradouro', data.logradouro);
-      setValue('district', data.bairro);
-      setValue('city', data.localidade);
-      setValue('state', data.uf);
+      try {
+        setLoading(true);
+        const { data } = await ViaCepApi.get(`/${cep}/json/`);
+        setValue('logradouro', data.logradouro);
+        setValue('district', data.bairro);
+        setValue('city', data.localidade);
+        setValue('state', data.uf);
+        if (data.erro) setError('CEP inválido');
+      } finally {
+        setLoading(false);
+      }
     },
     [setValue],
   );
 
-  useEffect(() => {
-    const sanitizedCEP = cepValue?.replaceAll(/\D/g, '');
+  const sanitizedFormValue = (str: string): string =>
+    String(str?.replaceAll(/\D/g, ''));
 
-    if (sanitizedCEP?.length === 8 && cepValue !== lastCep) {
+  useEffect(() => {
+    setCurrentCep(sanitizedFormValue(cepValue));
+    setCurrentCpf(sanitizedFormValue(cpfValue));
+    setCurrentTel(sanitizedFormValue(telValue));
+    setCurrentCardNumber(sanitizedFormValue(cardNumberValue));
+    setCurrentValidateDate(sanitizedFormValue(validateDateValue));
+    setCurrentCvv(sanitizedFormValue(cvvValue));
+    setDateValid(
+      isExists(
+        Number(currentValidateDate.slice(-2).padStart(4, '20')),
+        Number(currentValidateDate.slice(0, 2)) - 1,
+        10,
+      ),
+    );
+
+    if (sanitizedFormValue(cepValue)?.length === 8 && cepValue !== lastCep) {
       setLastCep(cepValue);
-      fetchAddress(sanitizedCEP);
+      fetchAddress(sanitizedFormValue(cepValue));
     }
+    if (currentCep.length === 8) setError('');
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cepValue]);
+  }, [
+    cepValue,
+    cpfValue,
+    telValue,
+    cardNumberValue,
+    validateDateValue,
+    cvvValue,
+  ]);
 
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)}>
@@ -204,6 +248,8 @@ const FormSpaceMotors: React.FC<IFormSpaceMotors> = ({ id, _vehicle }) => {
               />
               <div>
                 {errors.cep && <SpanError>{errors.cep.message}</SpanError>}
+                {error && <SpanError>{error}</SpanError>}
+                {loading && <span>Carregando...</span>}
               </div>
             </div>
             <div>
@@ -350,8 +396,9 @@ const FormSpaceMotors: React.FC<IFormSpaceMotors> = ({ id, _vehicle }) => {
                   <div>
                     <LabelForm htmlFor="cardNumber">Número do cartão</LabelForm>
                   </div>
-                  <FormInputs
+                  <FormInputsMask
                     id="cardNumber"
+                    mask="9999 9999 9999 9999"
                     type="text"
                     {...register('cardNumber', {
                       required:
@@ -391,18 +438,23 @@ const FormSpaceMotors: React.FC<IFormSpaceMotors> = ({ id, _vehicle }) => {
                       {errors.validateDate && (
                         <SpanError>{errors.validateDate.message}</SpanError>
                       )}
+                      {dateValid === false &&
+                        currentValidateDate.length === 4 && (
+                          <SpanError>Data inválida</SpanError>
+                        )}
                     </div>
                   </div>
                   <div>
                     <div>
                       <LabelForm htmlFor="cvv">CVC</LabelForm>
                     </div>
-                    <FormInputs
+                    <FormInputsMask
                       id="cvv"
+                      mask="999"
                       type="text"
                       {...register('cvv', {
                         required: 'Preencha este campo com um CVC válido',
-                        minLength: {
+                        maxLength: {
                           value: 3,
                           message:
                             'Preencha este campo com um número válido de caracteres',
@@ -425,13 +477,24 @@ const FormSpaceMotors: React.FC<IFormSpaceMotors> = ({ id, _vehicle }) => {
             )}
           </InputsContainer>
           <InputsContainer className="d-flex flex-column mt-3">
-            <SpanManufacturer>{_vehicle?.manufacturer}</SpanManufacturer>
-            <SpanVehicleName>{_vehicle?.name}</SpanVehicleName>
+            <SpanManufacturer>{vehicle?.manufacturer}</SpanManufacturer>
+            <SpanVehicleName>{vehicle?.name}</SpanVehicleName>
             <SpanVehiclePrice>{`¢ ${NormalizeNumber(
-              Number(_vehicle?.cost_in_credits),
+              Number(vehicle?.cost_in_credits),
             )}`}</SpanVehiclePrice>
             <div>
-              <ButtonPaymentConfirmation type="submit">
+              <ButtonPaymentConfirmation
+                disabled={
+                  currentCep.length !== 8 ||
+                  currentCpf.length !== 11 ||
+                  currentTel.length !== 11 ||
+                  currentCardNumber.length !== 16 ||
+                  currentValidateDate.length !== 4 ||
+                  currentCvv.length !== 3 ||
+                  dateValid === false
+                }
+                type="submit"
+              >
                 Finalizar Compra
               </ButtonPaymentConfirmation>
             </div>

@@ -1,9 +1,8 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable react/jsx-props-no-spreading */
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import React, { memo, useEffect } from 'react';
 
 import { Container } from 'react-bootstrap';
-import { useTranslation } from 'react-i18next';
 import { ImArrowLeft2 } from 'react-icons/im';
 import { Link, useParams } from 'react-router-dom';
 
@@ -14,39 +13,21 @@ import Header from 'components/Header';
 import Loader from 'components/Loader';
 
 import useTitle from 'hooks/useTitle';
-
-import StarWarsApi from 'services/StarWarsClient';
-
-import { VehicleType } from 'types/VehicleType';
+import useVehicles from 'hooks/useVehicles';
 
 import { CheckoutSpan } from './style';
 
 const Checkout: React.FC = () => {
-  const { t, i18n } = useTranslation();
   const setTitle = useTitle();
-  const [vehicle, setVehicle] = useState<VehicleType>();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { fetchVehicle, vehicle, loading, error } = useVehicles();
 
   const { id } = useParams();
 
-  const fetchStarWarsApi = useCallback(async (_id: string) => {
-    try {
-      setLoading(true);
-      const { data } = await StarWarsApi.get(`/vehicles/${_id}`);
-      setVehicle(data);
-    } catch {
-      setError('Vehicle not found');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
   useEffect(() => {
-    setTitle(t('Checkout'));
-    fetchStarWarsApi(String(id));
+    setTitle('Checkout');
+    fetchVehicle(String(id));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [i18n.resolvedLanguage]);
+  }, []);
 
   return (
     <>
@@ -65,10 +46,10 @@ const Checkout: React.FC = () => {
       </Container>
       {loading && <Loader loading="Carregando Veículo..." />}
       {!loading && error && <p>{error}</p>}
-      {!loading && !error && (
+      {!loading && !error && vehicle && (
         <main>
           <Container>
-            <FormSpaceMotors id={id} _vehicle={vehicle} />
+            <FormSpaceMotors id={id} vehicle={vehicle} />
           </Container>
         </main>
       )}
