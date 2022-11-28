@@ -357,6 +357,7 @@ const FormSpaceMotors: React.FC<IFormSpaceMotors> = ({ id, vehicle }) => {
             <SpanFormTitle>Forma de Pagamento</SpanFormTitle>
             <div className="d-flex">
               <ButtonCreditCard
+                className="d-flex align-items-center justify-content-center"
                 type="button"
                 onClick={() => setPaymentType('creditCard')}
                 active={paymentType}
@@ -364,6 +365,7 @@ const FormSpaceMotors: React.FC<IFormSpaceMotors> = ({ id, vehicle }) => {
                 Cartão de crédito
               </ButtonCreditCard>
               <ButtonTicket
+                className="d-flex align-items-center justify-content-center"
                 type="button"
                 onClick={() => setPaymentType('ticket')}
                 active={paymentType}

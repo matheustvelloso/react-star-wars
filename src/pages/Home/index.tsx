@@ -1,9 +1,9 @@
 import React, { memo, useCallback, useEffect, useState } from 'react';
 
 import { Button, Col, Container, Form, Row } from 'react-bootstrap';
-import { AiOutlineReload } from 'react-icons/ai';
+import { AiOutlineSearch, AiOutlineClose } from 'react-icons/ai';
+import { BsArrowLeft } from 'react-icons/bs';
 import { ImArrowLeft2, ImArrowRight2 } from 'react-icons/im';
-import { MdCleaningServices } from 'react-icons/md';
 
 import Banner from 'components/Banner';
 import Footer from 'components/Footer';
@@ -39,31 +39,42 @@ const Home: React.FC = () => {
       <Banner>
         {!loading && (
           <Container>
-            <FormGroup className="d-flex flex-column flex-md-row py-2">
+            <FormGroup className="d-flex justify-content-between  py-2">
               <Form.Control
+                style={{ minWidth: '100px' }}
                 type="text my-3"
                 placeholder="Digite o nome ou o modelo do veículo"
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
               />
-              <div className="d-flex justify-content-center w-md-100">
+              <div className="d-flex justify-content-center align-items-center text-center">
                 <Button
+                  style={{ maxWidth: '40px' }}
                   className="my-3"
                   variant="primary"
                   disabled={!searchText.length}
                   type="button"
                   onClick={() => fetchVehicles(1, searchText)}
                 >
-                  Buscar
+                  <div className="d-flex align-items-center justify-content-center">
+                    <span>
+                      <AiOutlineSearch />
+                    </span>
+                  </div>
                 </Button>
                 {searchText?.length > 0 && (
                   <Button
+                    style={{ maxWidth: '40px' }}
                     className="my-3"
                     variant="primary"
                     onClick={handleClearSearch}
                     type="submit"
                   >
-                    <MdCleaningServices />
+                    <div className="d-flex align-items-center justify-content-center">
+                      <span>
+                        <AiOutlineClose />
+                      </span>
+                    </div>
                   </Button>
                 )}
               </div>
@@ -81,7 +92,10 @@ const Home: React.FC = () => {
                 <div className="text-white d-flex flex-column align-items-center my-5 py-5">
                   <h2>Vehicle Not Found</h2>
                   <ReloadButton type="button" onClick={handleClearSearch}>
-                    <AiOutlineReload />
+                    <div className="d-flex align-items-center">
+                      <BsArrowLeft />
+                      <span className="ms-1">Go Back</span>
+                    </div>
                   </ReloadButton>
                 </div>
               )}
