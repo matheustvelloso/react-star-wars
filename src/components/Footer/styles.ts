@@ -20,10 +20,15 @@ export const SpanDesignBy = styled.span`
   margin-right: 5px;
 `;
 
-export const SpanDesigner = styled.span`
+export const LinkDesigner = styled.a`
   text-align: center;
   font: normal normal bold 14px/17px Lato;
   letter-spacing: 0px;
   color: #ffffff;
   margin-left: 5px;
+  text-decoration: none;
+
+  &:hover {
+    color: #f4e426;
+  }
 `;

@@ -18,10 +18,16 @@ import { FormGroup, Pagination, ReloadButton } from './styles';
 
 const Home: React.FC = () => {
   const [searchText, setSearchText] = useState('');
+  const [abled, setAbled] = useState(true);
   const setTitle = useTitle();
 
   const { vehicles, loading, error, totalPages, currentPage, fetchVehicles } =
     useVehicles();
+
+  const handleSearch = useCallback(() => {
+    fetchVehicles(1, searchText);
+    setAbled(false);
+  }, [fetchVehicles, searchText]);
 
   const handleClearSearch = useCallback(() => {
     fetchVehicles();
@@ -54,7 +60,7 @@ const Home: React.FC = () => {
                   variant="primary"
                   disabled={!searchText.length}
                   type="button"
-                  onClick={() => fetchVehicles(1, searchText)}
+                  onClick={handleSearch}
                 >
                   <div className="d-flex align-items-center justify-content-center">
                     <span>
@@ -66,6 +72,7 @@ const Home: React.FC = () => {
                   <Button
                     style={{ maxWidth: '40px' }}
                     className="my-3"
+                    disabled={abled}
                     variant="primary"
                     onClick={handleClearSearch}
                     type="submit"

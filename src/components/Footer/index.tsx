@@ -2,7 +2,7 @@ import { memo } from 'react';
 
 import LogoStarWars from 'assets/space-motors-logo.png';
 
-import { FooterContainer, SpanDesignBy, SpanDesigner } from './styles';
+import { FooterContainer, LinkDesigner, SpanDesignBy } from './styles';
 
 const Footer: React.FC = () => {
   return (
@@ -11,7 +11,13 @@ const Footer: React.FC = () => {
         <img className="img-fluid" src={LogoStarWars} alt="LogoStarWars" />
         <div className="d-flex my-4">
           <SpanDesignBy>site por</SpanDesignBy>
-          <SpanDesigner>Matheus Velloso</SpanDesigner>
+          <LinkDesigner
+            href="https://github.com/matheustvelloso"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Matheus Velloso
+          </LinkDesigner>
         </div>
       </FooterContainer>
     </footer>
