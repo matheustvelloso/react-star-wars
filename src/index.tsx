@@ -6,9 +6,9 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 import 'services/i18n';
 
+import GlobalStyles from 'styles/GlobalStyles';
 
 import App from './App';
-import GlobalStyles from 'styles/GlobalStyles';
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>

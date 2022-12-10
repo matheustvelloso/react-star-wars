@@ -18,7 +18,7 @@ import { FormGroup, Pagination, ReloadButton } from './styles';
 
 const Home: React.FC = () => {
   const [searchText, setSearchText] = useState('');
-  const [abled, setAbled] = useState(true);
+  const [show, setShow] = useState(false);
   const setTitle = useTitle();
 
   const { vehicles, loading, error, totalPages, currentPage, fetchVehicles } =
@@ -26,7 +26,7 @@ const Home: React.FC = () => {
 
   const handleSearch = useCallback(() => {
     fetchVehicles(1, searchText);
-    setAbled(false);
+    setShow(true);
   }, [fetchVehicles, searchText]);
 
   const handleClearSearch = useCallback(() => {
@@ -68,11 +68,10 @@ const Home: React.FC = () => {
                     </span>
                   </div>
                 </Button>
-                {searchText?.length > 0 && (
+                {searchText?.length > 0 && show && (
                   <Button
                     style={{ maxWidth: '40px' }}
                     className="my-3"
-                    disabled={abled}
                     variant="primary"
                     onClick={handleClearSearch}
                     type="submit"
@@ -96,12 +95,14 @@ const Home: React.FC = () => {
           <Container>
             <Row className="row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 justify-content-center mt-5 pt-5">
               {vehicles?.length === 0 && (
-                <div className="text-white d-flex flex-column align-items-center my-5 py-5">
-                  <h2>Vehicle Not Found</h2>
+                <div className="text-white d-flex flex-column align-items-center justify-content-center my-5  py-5">
+                  <h2 style={{ whiteSpace: 'nowrap' }}>
+                    Veículo não encontrado
+                  </h2>
                   <ReloadButton type="button" onClick={handleClearSearch}>
                     <div className="d-flex align-items-center">
                       <BsArrowLeft />
-                      <span className="ms-1">Go Back</span>
+                      <span className="ms-1">Retornar</span>
                     </div>
                   </ReloadButton>
                 </div>
