@@ -32,6 +32,7 @@ const Home: React.FC = () => {
   const handleClearSearch = useCallback(() => {
     fetchVehicles();
     setSearchText('');
+    setShow(false);
   }, [fetchVehicles]);
 
   useEffect(() => {
@@ -97,7 +98,7 @@ const Home: React.FC = () => {
               {vehicles?.length === 0 && (
                 <div className="text-white d-flex flex-column align-items-center justify-content-center my-5  py-5">
                   <h2 style={{ whiteSpace: 'nowrap' }}>
-                    Veículos não encontrado
+                    Veículo não encontrado
                   </h2>
                   <ReloadButton type="button" onClick={handleClearSearch}>
                     <div className="d-flex align-items-center">

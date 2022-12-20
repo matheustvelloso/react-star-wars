@@ -54,7 +54,7 @@ export const Pagination = styled(ReactPaginate)`
 
   li {
     list-style: none;
-    font: normal normal bold 22px/27px Lato;
+    font: normal normal bold 22px/27px sans-serif;
     letter-spacing: 0px;
     color: #000000;
     margin: 0 5px;

@@ -11,7 +11,7 @@ export const LoaderContainer = styled.div`
 export const LoadingSpan = styled.span`
   margin-top: 30px;
   text-align: center;
-  font: normal normal bold 28px/34px Lato;
+  font: normal normal bold 28px/34px sans-serif;
   letter-spacing: 0px;
   color: #ffffff;
   opacity: 1;

@@ -14,7 +14,7 @@ export const FooterContainer = styled.div`
 
 export const SpanDesignBy = styled.span`
   text-align: center;
-  font: normal normal bold 14px/17px Lato;
+  font: normal normal bold 14px/17px sans-serif;
   letter-spacing: 0px;
   color: #666666;
   margin-right: 5px;
@@ -22,7 +22,7 @@ export const SpanDesignBy = styled.span`
 
 export const LinkDesigner = styled.a`
   text-align: center;
-  font: normal normal bold 14px/17px Lato;
+  font: normal normal bold 14px/17px sans-serif;
   letter-spacing: 0px;
   color: #ffffff;
   margin-left: 5px;
