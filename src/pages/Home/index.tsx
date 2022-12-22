@@ -119,7 +119,7 @@ const Home: React.FC = () => {
           {totalPages > 1 && (
             <Pagination
               onPageChange={({ selected }) => {
-                fetchVehicles(selected + 1);
+                fetchVehicles(selected + 1, searchText);
               }}
               pageCount={totalPages}
               forcePage={currentPage - 1}
